@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Matrículas{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3><i class="bi bi-list-check"></i> Matrículas</h3>
+    <a href="{% url 'matricula_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Nueva Matrícula
+    </a>
+</div>
+
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Curso</th>
+            <th>Usuario</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Nota Final</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for matricula in matriculas %}
+        <tr>
+            <td>{{ matricula.curso }}</td>
+            <td>{{ matricula.usuario }}</td>
+            <td>{{ matricula.fecha_matricula }}</td>
+            <td>{{ matricula.estado_matricula }}</td>
+            <td>{{ matricula.nota_final|default:"-" }}</td>
+            <td>
+                <a href="{% url 'matricula_update' matricula.id %}" class="btn btn-warning btn-sm">
+                    <i class="bi bi-pencil-square"></i>
+                </a>
+                <a href="{% url 'matricula_delete' matricula.id %}" class="btn btn-danger btn-sm">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="text-center">No existen matrículas registradas.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Eliminar Servicio{% endblock %}
+
+{% block content %}
+
+<div class="card shadow-sm border-danger">
+    <div class="card-header bg-danger text-white">
+        <h4 class="mb-0">
+            <i class="bi bi-trash"></i> Eliminar Servicio
+        </h4>
+    </div>
+
+    <div class="card-body">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    {{ message }}
+                    <button class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <p class="fs-5">
+            <i class="bi bi-exclamation-triangle text-danger"></i>
+            ¿Está seguro de eliminar el servicio <strong>{{ object.nombre }}</strong>?
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">
+                <i class="bi bi-trash"></i> Sí, eliminar
+            </button>
+            <a href="{% url 'servicio_lista' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Cancelar
+            </a>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

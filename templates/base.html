@@ -1,0 +1,272 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{% block title %}SisPágina{% endblock %}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            overflow-x: hidden;
+            /* Fondo con imagen estática y capa semitransparente para legibilidad */
+            background-image: linear-gradient(rgba(248, 250, 252, 0.85), rgba(248, 250, 252, 0.85)), url("{% static 'img/fondo_empresa.jpg' %}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            
+            color: #334155;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* Navbar Ejecutivo Fijo */
+        .navbar-custom {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+        }
+        .navbar-custom .navbar-brand {
+            color: #0f172a; /* Texto casi negro riguroso */
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        .navbar-custom .navbar-text {
+            color: #475569;
+            font-size: 0.9rem;
+        }
+        .navbar-custom .btn {
+            color: #1e40af; /* Azul ejecutivo */
+            border: 1px solid #cbd5e1;
+            background-color: #ffffff;
+            font-weight: 500;
+            font-size: 0.85rem;
+            border-radius: 6px;
+        }
+        .navbar-custom .btn:hover {
+            background-color: #f8fafc;
+            border-color: #94a3b8;
+            color: #1e40af;
+        }
+
+        /* Estilos de Íconos de Redes Sociales */
+        .social-icons-nav a, .social-icons-footer a {
+            color: #64748b;
+            font-size: 1.1rem;
+            transition: color 0.2s ease-in-out;
+            text-decoration: none;
+        }
+        .social-icons-nav a:hover, .social-icons-footer a:hover {
+            color: #1e40af;
+        }
+
+        /* Sidebar Operacional */
+        .sidebar {
+            position: fixed;
+            top: 57px;
+            left: 0;
+            width: 250px;
+            height: calc(100vh - 57px);
+            background-color: #ffffff;
+            border-right: 1px solid #e2e8f0;
+            overflow-y: auto;
+            z-index: 1020;
+        }
+
+        .sidebar .titulo {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            font-weight: 700;
+            padding: 24px 24px 8px 24px;
+            color: #94a3b8;
+        }
+
+        .sidebar .nav-link {
+            color: #475569;
+            padding: 9px 24px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar .nav-link i {
+            font-size: 1.1rem;
+            color: #94a3b8;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            border-left: 3px solid #1e40af; /* Indicador azul */
+        }
+        
+        .sidebar .nav-link:hover i {
+            color: #1e40af;
+        }
+
+        /* Área de Trabajo Principal */
+        .contenido {
+            flex: 1;
+            margin-left: 250px;
+            padding: 32px 40px;
+            margin-top: 57px;
+        }
+
+        .submenu {
+            padding-left: 36px;
+        }
+
+        /* Footer Institucional */
+        footer {
+            background-color: #ffffff;
+            color: #64748b;
+            padding: 32px 40px;
+            margin-top: auto;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+        }
+
+        footer h6 {
+            color: #0f172a;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+        }
+
+        footer a {
+            color: #64748b;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: #1e40af;
+            text-decoration: underline;
+        }
+    </style>
+
+    {% block css %}{% endblock %}
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-custom fixed-top">
+  <div class="container-fluid">
+    <span class="navbar-brand mb-0 h1">SisPágina</span>
+    <div class="d-flex align-items-center gap-3">
+      
+      <!-- Redes sociales en el Navbar cerca a Autenticarse -->
+      <div class="social-icons-nav d-flex align-items-center gap-2 me-2">
+        <a href="https://facebook.com" target="_blank" title="Facebook"><i class="bi bi-facebook"></i></a>
+        <a href="https://twitter.com" target="_blank" title="Twitter"><i class="bi bi-twitter-x"></i></a>
+        <a href="https://instagram.com" target="_blank" title="Instagram"><i class="bi bi-instagram"></i></a>
+        <a href="https://wa.me/123456789" target="_blank" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+        <a href="tel:+123456789" title="Teléfono"><i class="bi bi-telephone-fill"></i></a>
+      </div>
+
+      {% if user.is_authenticated %}
+        <span class="navbar-text me-2 align-self-center">
+          Usuario: <strong>{{ user.get_full_name|default:user.usuario }}</strong>
+        </span>
+        <form action="{% url 'logout' %}" method="post" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm px-3">
+            <i class="bi bi-box-arrow-right"></i> Finalizar Sesión
+          </button>
+        </form>
+      {% else %}
+        {% if request.resolver_match and request.resolver_match.url_name != "login" %}
+          <a href="{% url 'login' %}" class="btn btn-sm px-3">
+            <i class="bi bi-box-arrow-in-right"></i> Autenticarse
+          </a>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+{% if user.is_authenticated %}
+<div class="sidebar">
+    <ul class="nav flex-column">
+        <li class="nav-item mt-3"><a class="nav-link" href="/"><i class="bi bi-speedometer2"></i> Escritorio</a></li>
+        
+        <div class="titulo">Mantenimiento</div>
+        <li class="nav-item"><a class="nav-link submenu" href="{% url 'servicio_lista' %}"><i class="bi bi-collection"></i> Servicios</a></li>
+        <li class="nav-item"><a class="nav-link submenu" href="{% url 'rol_lista' %}"><i class="bi bi-shield-check"></i> Roles</a></li>
+        <li class="nav-item"><a class="nav-link submenu" href="{% url 'curso_lista' %}"><i class="bi bi-book-half"></i> Curso</a></li>
+        <li class="nav-item"><a class="nav-link submenu" href="{% url 'usuario_lista' %}"><i class="bi bi-person-lines-fill"></i> Usuario</a></li>
+        <li class="nav-item"><a class="nav-link submenu" href="{% url 'blog_lista' %}"><i class="bi bi-file-text"></i> Blog</a></li>
+        <li class="nav-item"><a class="nav-link submenu" href="{% url 'matricula_lista' %}"><i class="bi bi-mortarboard"></i> Matrícula</a></li>
+        
+        <div class="titulo">Procesos</div>
+        <li class="nav-item"><a class="nav-link submenu" href="#"><i class="bi bi-arrow-repeat"></i> Opción 1</a></li>
+        
+        <div class="titulo">Reportes</div>
+        <li class="nav-item"><a class="nav-link submenu" href="#"><i class="bi bi-graph-up"></i> Reporte 1</a></li>
+        
+        <div class="titulo">Seguridad</div>
+        <li class="nav-item"><a class="nav-link submenu" href="#"><i class="bi bi-lock-toggle"></i> Usuarios</a></li>
+    </ul>
+</div>
+{% endif %}
+
+<div class="contenido"
+     {% if not user.is_authenticated %}
+         style="margin-left:0;"
+     {% endif %}>
+
+    {% block content %}{% endblock %}
+</div>
+
+<footer>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-3 mb-3 mb-md-0">
+        <h6>Enlaces institucionales</h6>
+        <ul class="list-unstyled d-grid gap-1">
+          <li><a href="#">Movilidad urbana</a></li>
+          <li><a href="#">Seguridad ciudadana</a></li>
+        </ul>
+      </div>
+      <div class="col-md-3 mb-3 mb-md-0">
+        <h6>Consultas externas</h6>
+        <ul class="list-unstyled d-grid gap-1">
+          <li><a href="#">SAT</a></li>
+          <li><a href="#">SISOL Salud</a></li>
+        </ul>
+      </div>
+      <div class="col-md-3 mb-3 mb-md-0">
+        <h6>Sede Central</h6>
+        <p class="mb-1 text-dark fw-medium">Palacio Municipal</p>
+        <p class="mb-0">Lima, Perú | Tel: (01) 1234567</p>
+      </div>
+      
+      <!-- Redes sociales en el Footer -->
+      <div class="col-md-3">
+        <h6>Síguenos y Contacto</h6>
+        <div class="social-icons-footer d-flex gap-3 fs-5 mt-2">
+          <a href="https://facebook.com" target="_blank" title="Facebook"><i class="bi bi-facebook"></i></a>
+          <a href="https://twitter.com" target="_blank" title="Twitter"><i class="bi bi-twitter-x"></i></a>
+          <a href="https://instagram.com" target="_blank" title="Instagram"><i class="bi bi-instagram"></i></a>
+          <a href="https://wa.me/123456789" target="_blank" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+          <a href="tel:+123456789" title="Teléfono"><i class="bi bi-telephone-fill"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% block js %}{% endblock %}
+
+</body>
+</html> 

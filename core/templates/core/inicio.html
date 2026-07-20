@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+<div class="text-center mt-5">
+    <h2>Bienvenido {{ user.nombres }} {{ user.apellidos }}</h2>
+    <p>Has iniciado sesión como <strong>{{ user.usuario }}</strong></p>
+    <p>Proyecto desarrollado con Django y PostgreSQL.</p>
+</div>
+{% endblock %}

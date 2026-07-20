@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Formulario Blog{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h4 class="mb-3"><i class="bi bi-pencil"></i> {{ titulo_form }}</h4>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    {{ form.usuario.label_tag }}
+                    {{ form.usuario }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    {{ form.servicio.label_tag }}
+                    {{ form.servicio }}
+                </div>
+            </div>
+
+            <div class="mb-3">
+                {{ form.titulo.label_tag }}
+                {{ form.titulo }}
+            </div>
+
+            <div class="mb-3">
+                {{ form.textoblog.label_tag }}
+                {{ form.textoblog }}
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    {{ form.imagenblog.label_tag }}
+                    {{ form.imagenblog }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    {{ form.fecha_publicacion.label_tag }}
+                    {{ form.fecha_publicacion }}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-save"></i> Guardar
+            </button>
+            <a href="{% url 'blog_lista' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Cancelar
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

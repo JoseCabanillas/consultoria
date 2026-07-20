@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Servicios{% endblock %}
+
+{% block content %}
+<style>
+  /* Fondo animado con gradiente */
+  body {
+    background: linear-gradient(-45deg, #ff6b6b, #f8e473, #48c6ef, #6f86d6);
+    background-size: 400% 400%;
+    animation: moverFondo 15s ease infinite;
+    min-height: 100vh;
+  }
+
+  @keyframes moverFondo {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Tarjetas más pequeñas pero sin recorte */
+  .card-servicio {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 10px;
+    max-width: 250px; /* controla el ancho */
+    margin: 0 auto;   /* centra la tarjeta */
+  }
+
+  .card-servicio:hover {
+    transform: scale(1.03);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  }
+
+  .card-img-top {
+    width: 100%;
+    height: auto; /* no recorta la imagen */
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+  }
+
+  h2 {
+    color: #fff;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+  }
+
+  .card-body {
+    background-color: rgba(255,255,255,0.95);
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+  }
+</style>
+
+<div class="container mt-5">
+  <h2 class="mb-4 text-center">Servicios Públicos</h2>
+
+  <!-- Lista de servicios -->
+  <div class="row justify-content-center">
+    {% for servicio in servicios %}
+    <div class="col-md-3 mb-4"> <!-- más pequeñas: col-md-3 -->
+      <div class="card h-100 shadow-sm card-servicio">
+        {% if servicio.imagenservicio %}
+          <img src="{{ servicio.imagenservicio.url }}" class="card-img-top" alt="{{ servicio.nombre }}">
+        {% else %}
+          <img src="{% static 'img/no-image.png' %}" class="card-img-top" alt="Sin imagen">
+        {% endif %}
+        <div class="card-body">
+          <h6 class="card-title">{{ servicio.nombre }}</h6>
+          <p class="card-text small">{{ servicio.descripcion|truncatewords:15 }}</p>
+          <a href="{% url 'blogs_por_servicio' servicio.id %}" class="btn btn-outline-primary btn-sm">
+            Ver Blogs
+          </a>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+      <p class="text-center text-light">No hay servicios disponibles.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

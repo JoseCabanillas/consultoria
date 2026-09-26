@@ -1,1 +1,1 @@
-web: gunicorn sisPagina.wsgi
+web: gunicorn consultoria.wsgi

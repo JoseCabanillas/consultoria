@@ -1,89 +1,86 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Blogs{% endblock %}
+{% block title %}Lista de Blogs{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h3><i class="bi bi-journal-text"></i> Blogs</h3>
-    {% if user.is_authenticated %}
-    <a href="{% url 'blog_create' %}" class="btn btn-primary">
-        <i class="bi bi-plus-circle"></i> Nuevo Blog
+<div class="container mt-5">
+  <h2 class="mb-4 text-center">Gestión de Blogs</h2>
+
+  <!-- Botón agregar nuevo blog -->
+  <div class="text-end mb-3">
+    <a href="{% url 'blog_create' %}" class="btn btn-success">
+      <i class="bi bi-plus-circle"></i> Agregar nuevo blog
     </a>
-    {% endif %}
-</div>
+  </div>
 
-{% if messages %}
-    {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-            {{ message }}
-            <button class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    {% endfor %}
-{% endif %}
+  <table class="table table-striped table-hover shadow-sm">
+    <thead class="table-dark">
+      <tr>
+        <th>Imagen</th>
+        <th>Título</th>
+        <th>Servicio</th>
+        <th>Autor</th>
+        <th>Fecha</th>
+        <th class="text-center">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for blog in blogs %}
+      <tr>
+        <!-- Miniatura -->
+        <td class="text-center">
+          {% if blog.imagenblog %}
+            <img src="{{ blog.imagenblog.url }}" alt="{{ blog.titulo }}" style="width:60px; height:60px; object-fit:cover; border-radius:5px;">
+          {% else %}
+            <img src="{% static 'img/no-image.png' %}" alt="Sin imagen" style="width:60px; height:60px; object-fit:cover; border-radius:5px;">
+          {% endif %}
+        </td>
+        <td>{{ blog.titulo }}</td>
+        <td>{{ blog.servicio }}</td>
+        <td>{{ blog.usuario }}</td>
+        <td>{{ blog.fecha_publicacion }}</td>
+        <td class="text-center">
+          <!-- Botón ver detalle -->
+          <a href="{% url 'blog_detalle' blog.id %}" class="btn btn-info btn-sm">
+            <i class="bi bi-eye"></i> Ver detalle
+          </a>
+          <!-- Botones de edición y eliminación -->
+          <a href="{% url 'blog_update' blog.id %}" class="btn btn-warning btn-sm">
+            <i class="bi bi-pencil-square"></i> Editar
+          </a>
+          <a href="{% url 'blog_delete' blog.id %}" class="btn btn-danger btn-sm">
+            <i class="bi bi-trash"></i> Eliminar
+          </a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" class="text-center text-muted">No hay blogs registrados.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
-<div class="row">
-    {% for blog in blogs %}
-    <div class="col-md-4 mb-4">
-        <div class="card h-100 shadow-sm">
-            {% if blog.imagenblog %}
-                <img src="{{ blog.imagenblog.url }}" class="card-img-top" alt="{{ blog.titulo }}">
-            {% endif %}
-            <div class="card-body">
-                <h5 class="card-title">
-                    <a href="{% url 'blog_detalle' blog.id %}" class="text-decoration-none">
-                        {{ blog.titulo }}
-                    </a>
-                </h5>
-                <p class="card-text text-muted">
-                    <small>
-                        Publicado por <strong>{{ blog.usuario }}</strong>  
-                        en <em>{{ blog.servicio }}</em><br>
-                        Fecha: {{ blog.fecha_publicacion }}
-                    </small>
-                </p>
-                <p class="card-text">{{ blog.textoblog|truncatewords:20 }}</p>
-            </div>
-            <div class="card-footer text-center">
-                {% if user.is_authenticated %}
-                    <a href="{% url 'blog_update' blog.id %}" class="btn btn-warning btn-sm">
-                        <i class="bi bi-pencil-square"></i> Editar
-                    </a>
-                    <a href="{% url 'blog_delete' blog.id %}" class="btn btn-danger btn-sm">
-                        <i class="bi bi-trash"></i> Eliminar
-                    </a>
-                {% else %}
-                    <a href="#" onclick="window.print();" class="btn btn-secondary btn-sm">
-                        <i class="bi bi-printer"></i> Imprimir
-                    </a>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    {% empty %}
-    <div class="col-12">
-        <div class="alert alert-info text-center">
-            No existen blogs registrados.
-        </div>
-    </div>
-    {% endfor %}
-</div>
-
-<!-- Paginación -->
-<nav aria-label="Page navigation">
-    <ul class="pagination justify-content-center">
-        {% if blogs.has_previous %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ blogs.previous_page_number }}">Anterior</a>
-            </li>
+  <!-- Paginación -->
+  <div class="d-flex justify-content-center">
+    {% if is_paginated %}
+      <ul class="pagination">
+        {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+          </li>
         {% endif %}
-        <li class="page-item disabled">
-            <span class="page-link">Página {{ blogs.number }} de {{ blogs.paginator.num_pages }}</span>
+        <li class="page-item active">
+          <span class="page-link">{{ page_obj.number }}</span>
         </li>
-        {% if blogs.has_next %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ blogs.next_page_number }}">Siguiente</a>
-            </li>
+        {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+          </li>
         {% endif %}
-    </ul>
-</nav>
+      </ul>
+    {% endif %}
+  </div>
+</div>
 {% endblock %}

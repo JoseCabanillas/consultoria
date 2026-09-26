@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Docente{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h4>
+            <i class="bi bi-person-badge"></i>
+            {% if object %} Editar Docente {% else %} Nuevo Docente {% endif %}
+        </h4>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    {{ form.idEspecialidad.label_tag }}
+                    {{ form.idEspecialidad }}
+                    {{ form.idEspecialidad.errors }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    {{ form.dni.label_tag }}
+                    {{ form.dni }}
+                    {{ form.dni.errors }}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    {{ form.priNombre.label_tag }}
+                    {{ form.priNombre }}
+                    {{ form.priNombre.errors }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    {{ form.segNombre.label_tag }}
+                    {{ form.segNombre }}
+                    {{ form.segNombre.errors }}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    {{ form.terNombre.label_tag }}
+                    {{ form.terNombre }}
+                    {{ form.terNombre.errors }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    {{ form.apePaterno.label_tag }}
+                    {{ form.apePaterno }}
+                    {{ form.apePaterno.errors }}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    {{ form.apeMaterno.label_tag }}
+                    {{ form.apeMaterno }}
+                    {{ form.apeMaterno.errors }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    {{ form.telefono.label_tag }}
+                    {{ form.telefono }}
+                    {{ form.telefono.errors }}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    {{ form.direccion.label_tag }}
+                    {{ form.direccion }}
+                    {{ form.direccion.errors }}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Guardar
+            </button>
+            <a href="{% url 'docente_lista' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Regresar
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

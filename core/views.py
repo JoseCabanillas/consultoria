@@ -5,21 +5,23 @@ from django.core.paginator import Paginator
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LogoutView
-from .forms import ServicioForm, RolForm, CursoForm, UsuarioForm, BlogForm, MatriculaForm
-from .models import Servicio, Rol, Curso, Usuario, Blog, Matricula
+from .forms import ServicioForm, RolForm, CursoForm, UsuarioForm, BlogForm, MatriculaForm, NotaForm, EspecialidadForm,DocenteForm
+from .models import Servicio, Rol, Curso, Usuario, Blog, Matricula, Nota, Especialidad,Docente
 from django.contrib.auth import authenticate, login, logout
+import openpyxl
+from django.http import HttpResponse
 
 
 def login_view(request):
     if request.method == "POST":
-        usuario = request.POST.get("usuario")   # 👈 coincide con USERNAME_FIELD
+        usuario = request.POST.get("usuario")
         password = request.POST.get("password")
 
         user = authenticate(request, usuario=usuario, password=password)
         if user is not None:
             login(request, user)
             messages.success(request, f"Bienvenido {user.nombres} {user.apellidos}")
-            return redirect("inicio")  # 👈 redirige a tu página principal
+            return redirect("inicio")
         else:
             messages.error(request, "Usuario o contraseña incorrectos.")
     return render(request, "registration/login.html")
@@ -127,6 +129,10 @@ class curso_lista(LoginRequiredMixin, ListView):
     paginate_by = 10
     ordering = ["nombre_curso"]
 
+    def get_queryset(self):
+        # ✅ Incluimos docente y especialidad en la consulta para optimizar
+        return Curso.objects.select_related("servicio", "docente__idEspecialidad").all()
+
 
 class curso_create(LoginRequiredMixin, CreateView):
     model = Curso
@@ -160,6 +166,48 @@ class curso_delete(LoginRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+# ✅ CURSO PÚBLICO (filtrado por servicio)
+class curso_publico_lista(ListView):
+    model = Curso
+    template_name = "core/curso/curso_lista_publica.html"
+    context_object_name = "cursos"
+    paginate_by = 10
+    ordering = ["nombre_curso"]
+
+    def get_queryset(self):
+        servicio_id = self.kwargs.get("servicio_id")
+        return Curso.objects.filter(servicio_id=servicio_id).select_related("docente__idEspecialidad")
+
+
+# ✅ DETALLE DE CURSO (privado)
+class CursoDetalleView(DetailView):
+    model = Curso
+    template_name = "core/curso/curso_detalle.html"
+    context_object_name = "curso"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # ✅ Añadimos docente y especialidad al contexto
+        context["docente"] = self.object.docente
+        context["especialidad"] = self.object.docente.idEspecialidad if self.object.docente else None
+        return context
+
+
+# ✅ DETALLE DE CURSO PÚBLICO
+class CursoDetallePublicoView(DetailView):
+    model = Curso
+    template_name = "core/curso/curso_detalle_publico.html"
+    context_object_name = "curso"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["servicio"] = self.object.servicio
+        context["docente"] = self.object.docente
+        context["especialidad"] = self.object.docente.idEspecialidad if self.object.docente else None
+        return context
+
+
+
 # ---------------- USUARIO ----------------
 class usuario_lista(LoginRequiredMixin, ListView):
     model = Usuario
@@ -167,6 +215,9 @@ class usuario_lista(LoginRequiredMixin, ListView):
     context_object_name = "usuarios"
     paginate_by = 10
     ordering = ["apellidos", "nombres"]
+
+# ... (resto de usuarios, blogs, servicio_publico_lista y matrículas igual que antes)
+
 
 
 def usuario_create(request):
@@ -267,10 +318,36 @@ class blog_delete(LoginRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+# ✅ DETALLE DE BLOG (privado)
 class blog_detalle(DetailView):
     model = Blog
     template_name = "core/blog/blog_detalle.html"
     context_object_name = "blog"
+
+
+# ✅ NUEVO: BLOG PÚBLICO (filtrado por servicio)
+class blog_publico_lista(ListView):
+    model = Blog
+    template_name = "core/blog/blog_lista_publica.html"
+    context_object_name = "blogs"
+    paginate_by = 6
+
+    def get_queryset(self):
+        servicio_id = self.kwargs.get("servicio_id")
+        return Blog.objects.filter(servicio_id=servicio_id)
+
+
+# ✅ DETALLE DE BLOG PÚBLICO
+class BlogDetallePublicoView(DetailView):
+    model = Blog
+    template_name = "core/blog/blog_detalle_publico.html"  # plantilla separada para público
+    context_object_name = "blog"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Pasamos también el servicio para que el botón "Volver a lista" sepa a dónde regresar
+        context["servicio"] = self.object.servicio
+        return context
 
 
 # ---------------- SERVICIO PÚBLICO ----------------
@@ -305,3 +382,178 @@ class MatriculaDelete(DeleteView):
     model = Matricula
     template_name = "core/matricula/matricula_delete.html"
     success_url = reverse_lazy("matricula_lista")
+
+# ---------------- NOTA ----------------
+def nota_list(request):
+    notas = Nota.objects.all()
+
+    alumno_id = request.GET.get('alumno')
+    curso_id = request.GET.get('curso')
+
+    if alumno_id:
+        notas = notas.filter(idmatricula__usuario__id=alumno_id)
+    if curso_id:
+        notas = notas.filter(idmatricula__curso__id=curso_id)
+
+    # Paginación: 10 notas por página
+    paginator = Paginator(notas, 10)
+    page_number = request.GET.get('page')
+    notas_page = paginator.get_page(page_number)
+
+    alumnos = Usuario.objects.all()
+    cursos = Curso.objects.all()
+
+    return render(request, 'core/nota/nota_lista.html', {
+        'notas': notas_page,
+        'alumnos': alumnos,
+        'cursos': cursos,
+    })
+
+
+def nota_create(request):
+    if request.method == 'POST':
+        form = NotaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('nota_list')
+    else:
+        form = NotaForm()
+    return render(request, 'core/nota/nota_form.html', {'form': form})
+
+
+def nota_update(request, pk):
+    nota = get_object_or_404(Nota, pk=pk)
+    if request.method == 'POST':
+        form = NotaForm(request.POST, instance=nota)
+        if form.is_valid():
+            form.save()
+            return redirect('nota_list')
+    else:
+        form = NotaForm(instance=nota)
+    return render(request, 'core/nota/nota_form.html', {'form': form})
+
+
+def nota_delete(request, pk):
+    nota = get_object_or_404(Nota, pk=pk)
+    if request.method == 'POST':
+        nota.delete()
+        return redirect('nota_list')
+    return render(request, 'nota_eliminar.html', {'nota': nota})
+
+
+def nota_export(request):
+    notas = Nota.objects.all()
+
+    alumno_id = request.GET.get('alumno')
+    curso_id = request.GET.get('curso')
+
+    if alumno_id:
+        notas = notas.filter(idmatricula__usuario__id=alumno_id)
+    if curso_id:
+        notas = notas.filter(idmatricula__curso__id=curso_id)
+
+    # Crear archivo Excel
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Notas"
+
+    # Encabezados en negrita
+    headers = ['ID', 'Alumno', 'Curso', 'Valor Nota', 'Fecha Creación']
+    ws.append(headers)
+    for cell in ws[1]:
+        cell.font = openpyxl.styles.Font(bold=True)
+
+    # Datos
+    for nota in notas:
+        ws.append([
+            nota.idnota,
+            nota.idmatricula.usuario.nombres,
+            nota.idmatricula.curso.nombre_curso,
+            nota.valor_nota,
+            nota.fec_crea.strftime("%Y-%m-%d")
+        ])
+
+    # Ajustar ancho de columnas
+    for column_cells in ws.columns:
+        length = max(len(str(cell.value)) for cell in column_cells)
+        ws.column_dimensions[column_cells[0].column_letter].width = length + 2
+
+    # Respuesta HTTP
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = 'attachment; filename="notas.xlsx"'
+    wb.save(response)
+    return response
+
+# ---------------- ESCPECIALIDAD ----------------
+class especialidad_lista(LoginRequiredMixin, ListView):
+    model = Especialidad
+    template_name = "core/especialidad/especialidad_lista.html"
+    context_object_name = "especialidades"
+    paginate_by = 10
+    ordering = ["nomEspecialidad"]
+
+class especialidad_create(LoginRequiredMixin, CreateView):
+    model = Especialidad
+    form_class = EspecialidadForm
+    template_name = "core/especialidad/especialidad_form.html"
+    success_url = reverse_lazy("especialidad_lista")
+
+    def form_valid(self, form):
+        messages.success(self.request, "Especialidad registrada correctamente.")
+        return super().form_valid(form)
+
+class especialidad_update(LoginRequiredMixin, UpdateView):
+    model = Especialidad
+    form_class = EspecialidadForm
+    template_name = "core/especialidad/especialidad_form.html"
+    success_url = reverse_lazy("especialidad_lista")
+
+    def form_valid(self, form):
+        messages.success(self.request, "Especialidad actualizada correctamente.")
+        return super().form_valid(form)
+
+class especialidad_delete(LoginRequiredMixin, DeleteView):
+    model = Especialidad
+    template_name = "core/especialidad/especialidad_eliminar.html"
+    success_url = reverse_lazy("especialidad_lista")
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, "Especialidad eliminada correctamente.")
+        return super().delete(request, *args, **kwargs)
+
+# ---------------- DOCENTE ----------------
+class docente_lista(LoginRequiredMixin, ListView):
+    model = Docente
+    template_name = "core/docente/docente_lista.html"
+    context_object_name = "docentes"
+    paginate_by = 10
+    ordering = ["apePaterno", "priNombre"]
+
+class docente_create(LoginRequiredMixin, CreateView):
+    model = Docente
+    form_class = DocenteForm
+    template_name = "core/docente/docente_form.html"
+    success_url = reverse_lazy("docente_lista")
+
+    def form_valid(self, form):
+        messages.success(self.request, "Docente registrado correctamente.")
+        return super().form_valid(form)
+
+class docente_update(LoginRequiredMixin, UpdateView):
+    model = Docente
+    form_class = DocenteForm
+    template_name = "core/docente/docente_form.html"
+    success_url = reverse_lazy("docente_lista")
+
+    def form_valid(self, form):
+        messages.success(self.request, "Docente actualizado correctamente.")
+        return super().form_valid(form)
+
+class docente_delete(LoginRequiredMixin, DeleteView):
+    model = Docente
+    template_name = "core/docente/docente_eliminar.html"
+    success_url = reverse_lazy("docente_lista")
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, "Docente eliminado correctamente.")
+        return super().delete(request, *args, **kwargs)

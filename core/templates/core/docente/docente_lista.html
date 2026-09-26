@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Docentes{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h4><i class="bi bi-person-badge"></i> Listado de Docentes</h4>
+    </div>
+    <div class="card-body">
+        <a href="{% url 'docente_create' %}" class="btn btn-primary mb-3">
+            <i class="bi bi-plus-circle"></i> Nuevo Docente
+        </a>
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Especialidad</th>
+                    <th>DNI</th>
+                    <th>Teléfono</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for docente in docentes %}
+                <tr>
+                    <td>{{ docente.iddocente }}</td>
+                    <td>{{ docente.priNombre }} {{ docente.apePaterno }}</td>
+                    <td>{{ docente.idEspecialidad.nomEspecialidad }}</td>
+                    <td>{{ docente.dni }}</td>
+                    <td>{{ docente.telefono }}</td>
+                    <td>
+                        <a href="{% url 'docente_update' docente.pk %}" class="btn btn-sm btn-warning">
+                            <i class="bi bi-pencil-square"></i> Editar
+                        </a>
+                        <a href="{% url 'docente_delete' docente.pk %}" class="btn btn-sm btn-danger">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">No hay docentes registrados</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

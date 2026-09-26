@@ -169,8 +169,8 @@
         <a href="https://facebook.com" target="_blank" title="Facebook"><i class="bi bi-facebook"></i></a>
         <a href="https://twitter.com" target="_blank" title="Twitter"><i class="bi bi-twitter-x"></i></a>
         <a href="https://instagram.com" target="_blank" title="Instagram"><i class="bi bi-instagram"></i></a>
-        <a href="https://wa.me/123456789" target="_blank" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
-        <a href="tel:+123456789" title="Teléfono"><i class="bi bi-telephone-fill"></i></a>
+        <a href="https://wa.me/939415386" target="_blank" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+        <a href="tel:+939415386" title="Teléfono"><i class="bi bi-telephone-fill"></i></a>
       </div>
 
       {% if user.is_authenticated %}
@@ -206,7 +206,10 @@
         <li class="nav-item"><a class="nav-link submenu" href="{% url 'usuario_lista' %}"><i class="bi bi-person-lines-fill"></i> Usuario</a></li>
         <li class="nav-item"><a class="nav-link submenu" href="{% url 'blog_lista' %}"><i class="bi bi-file-text"></i> Blog</a></li>
         <li class="nav-item"><a class="nav-link submenu" href="{% url 'matricula_lista' %}"><i class="bi bi-mortarboard"></i> Matrícula</a></li>
-        
+        <li class="nav-item"><a class="nav-link submenu" href="{% url 'nota_list' %}"><i class="bi bi-journal-check"></i> Nota</a></li>
+        <li class="nav-item"><a class="nav-link submenu" href="{% url 'especialidad_lista' %}"><i class="bi bi-award"></i> Especialidad</a></li>
+        <li class="nav-item"><a class="nav-link submenu" href="{% url 'docente_lista' %}"><i class="bi bi-person-badge"></i> Docente</a></li>
+                
         <div class="titulo">Procesos</div>
         <li class="nav-item"><a class="nav-link submenu" href="#"><i class="bi bi-arrow-repeat"></i> Opción 1</a></li>
         

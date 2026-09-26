@@ -2,9 +2,42 @@
 {% block content %}
 <div class="container mt-4">
     <h2>{% if object %}✏️ Editar Curso{% else %}➕ Nuevo Curso{% endif %}</h2>
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
+
+        <!-- Servicio -->
+        <div class="mb-3">
+            <label for="id_servicio" class="form-label"><strong>Servicio</strong></label>
+            {{ form.servicio }}
+        </div>
+
+        <!-- Docente -->
+        <div class="mb-3">
+            <label for="id_docente" class="form-label"><strong>Docente</strong></label>
+            {{ form.docente }}
+        </div>
+
+        <!-- Nombre del curso -->
+        <div class="mb-3">
+            <label for="id_nombre_curso" class="form-label"><strong>Nombre del curso</strong></label>
+            {{ form.nombre_curso }}
+        </div>
+
+        <!-- Costo -->
+        <div class="mb-3">
+            <label for="id_costo" class="form-label"><strong>Costo</strong></label>
+            {{ form.costo }}
+        </div>
+
+        <!-- Descripción con CKEditor -->
+        <div class="mb-3">
+            <label for="id_descripcion" class="form-label"><strong>Descripción</strong></label>
+            <div class="w-100">
+                {{ form.descripcion }}
+            </div>
+        </div>
+
+        <!-- Botones -->
         <button type="submit" class="btn btn-success">Guardar</button>
         <a href="{% url 'curso_lista' %}" class="btn btn-secondary">Cancelar</a>
     </form>

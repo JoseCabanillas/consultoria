@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle del Curso{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <!-- Título del curso -->
+            <h2 class="card-title text-center mb-4">{{ curso.nombre_curso }}</h2>
+
+            <!-- Imagen del curso -->
+            {% if curso.imagencurso %}
+                <div class="text-center mb-4">
+                    <img src="{{ curso.imagencurso.url }}" 
+                         alt="{{ curso.nombre_curso }}" 
+                         class="rounded" 
+                         style="width:400px; height:400px; object-fit:cover;">
+                </div>
+            {% endif %}
+
+            <!-- Información del curso -->
+            <p class="text-muted text-center">
+                <small>
+                    <strong>Servicio:</strong> {{ curso.servicio.nombre }} <br>
+                    <strong>Docente:</strong> 
+                        {% if curso.docente %}
+                            {{ curso.docente.priNombre }} {{ curso.docente.apePaterno }} {{ curso.docente.apeMaterno }}
+                        {% else %}
+                            No asignado
+                        {% endif %} <br>
+                    <strong>Especialidad:</strong> 
+                        {% if curso.docente and curso.docente.idEspecialidad %}
+                            {{ curso.docente.idEspecialidad.nomEspecialidad }}
+                        {% else %}
+                            No definida
+                        {% endif %} <br>
+                    <strong>Costo:</strong> {{ curso.costo }}
+                </small>
+            </p>
+
+            <!-- Descripción completa -->
+            <p class="card-text mt-4">{{ curso.descripcion|safe }}</p>
+        </div>
+
+        <!-- Acciones públicas -->
+        <div class="card-footer text-center">
+            <a href="javascript:history.back()" class="btn btn-outline-primary btn-sm">
+                ⬅️ Volver
+            </a>
+            <a href="#" onclick="window.print();" class="btn btn-secondary btn-sm">
+                🖨️ Imprimir
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

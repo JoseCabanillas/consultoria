@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Blogs Públicos{% endblock %}
+
+{% block content %}
+<style>
+  body {
+    background: linear-gradient(-45deg, #6f86d6, #48c6ef, #f8e473, #ff6b6b);
+    background-size: 400% 400%;
+    animation: moverFondo 15s ease infinite;
+    min-height: 100vh;
+  }
+
+  @keyframes moverFondo {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .card-blog {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 10px;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+
+  .card-blog:hover {
+    transform: scale(1.03);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+  }
+
+  .card-img-top {
+    width: 100%;
+    height: auto;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+  }
+
+  h2 {
+    color: #fff;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+  }
+
+  .card-body {
+    background-color: rgba(255,255,255,0.95);
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+  }
+
+  .btn-detalle {
+    background-color: #007bff;
+    color: #fff;
+    font-weight: bold;
+  }
+  .btn-detalle:hover {
+    background-color: #0056b3;
+    color: #fff;
+  }
+
+  .btn-principal {
+    background-color: #28a745;
+    color: #fff;
+    font-weight: bold;
+    margin-top: 20px;
+  }
+  .btn-principal:hover {
+    background-color: #218838;
+    color: #fff;
+  }
+</style>
+
+<div class="container mt-5">
+  <h2 class="mb-4 text-center">Blogs Públicos de {{ servicio.nombre }}</h2>
+
+  <div class="row justify-content-center">
+    {% for blog in blogs %}
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 shadow-sm card-blog">
+        {% if blog.imagenblog %}
+          <img src="{{ blog.imagenblog.url }}" class="card-img-top" alt="{{ blog.titulo }}">
+        {% else %}
+          <img src="{% static 'img/no-image.png' %}" class="card-img-top" alt="Sin imagen">
+        {% endif %}
+        <div class="card-body text-center">
+          <h6 class="card-title">{{ blog.titulo }}</h6>
+          <p class="card-text small">{{ blog.contenido|truncatewords:20 }}</p>
+          <a href="{% url 'blog_detalle_publico' blog.id %}" class="btn btn-detalle btn-sm">
+            Leer más
+          </a>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+      <p class="text-center text-light">No hay blogs disponibles para este servicio.</p>
+    {% endfor %}
+  </div>
+
+  <!-- Botón regresar a la página principal -->
+  <div class="text-center mt-4">
+    <a href="{% url 'servicio_publico' %}" class="btn btn-principal">
+      ← Volver a página principal
+    </a>
+  </div>
+</div>
+{% endblock %}

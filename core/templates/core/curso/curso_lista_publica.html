@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Cursos Públicos{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4 text-center">Cursos Públicos de {{ servicio.nombre }}</h2>
+
+  <div class="row justify-content-center">
+    {% for curso in cursos %}
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body text-center">
+          <!-- Título del curso -->
+          <h6 class="card-title">{{ curso.nombre_curso }}</h6>
+
+          <!-- Docente -->
+          <p class="card-text">
+            <strong>Docente:</strong>
+            {% if curso.docente %}
+              {{ curso.docente.priNombre }} {{ curso.docente.apePaterno }}
+            {% else %}
+              No asignado
+            {% endif %}
+          </p>
+
+          <!-- Especialidad -->
+          <p class="card-text">
+            <strong>Especialidad:</strong>
+            {% if curso.docente and curso.docente.idEspecialidad %}
+              {{ curso.docente.idEspecialidad.nomEspecialidad }}
+            {% else %}
+              No definida
+            {% endif %}
+          </p>
+
+          <!-- Costo -->
+          <p class="card-text"><strong>Costo:</strong> {{ curso.costo }}</p>
+
+          <!-- Botón para detalle -->
+          <a href="{% url 'curso_detalle_publico' curso.id %}" class="btn btn-primary btn-sm">
+            Leer más
+          </a>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+      <p class="text-center text-muted">No hay cursos disponibles para este servicio.</p>
+    {% endfor %}
+  </div>
+
+  <!-- Botón regresar a la página principal -->
+  <div class="text-center mt-4">
+    <a href="{% url 'servicio_publico' %}" class="btn btn-success">
+      ← Ir a página principal
+    </a>
+  </div>
+</div>
+{% endblock %}

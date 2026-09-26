@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator, RegexValidator
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+from ckeditor.fields import RichTextField  # ✅ CKEditor para campos enriquecidos
 
 
 class Rol(models.Model):
@@ -29,7 +30,6 @@ class UsuarioManager(BaseUserManager):
             try:
                 rol_default = Rol.objects.get(pk=1)
             except Rol.DoesNotExist:
-                # Creamos el rol por defecto si no existe
                 rol_default = Rol.objects.create(
                     id=1,
                     nombre="Administrador",
@@ -48,7 +48,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
     rol = models.ForeignKey(Rol, on_delete=models.PROTECT, related_name="usuarios")
     usuario = models.CharField(max_length=200, unique=True)
-    password = models.CharField(max_length=128, null=True, blank=True)  # ✅ campo correcto
+    password = models.CharField(max_length=128, null=True, blank=True)
     estado = models.CharField(max_length=200, choices=ESTADOS_USUARIO, default="activo")
     apellidos = models.CharField(max_length=200)
     nombres = models.CharField(max_length=200)
@@ -56,7 +56,6 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     telefono = models.CharField(max_length=200, validators=[RegexValidator(r'^\+?\d{7,15}$')])
     direccion = models.CharField(max_length=200)
 
-    # Campos requeridos por Django
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
 
@@ -72,52 +71,60 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 class Servicio(models.Model):
     nombre = models.CharField(max_length=200)
     descripcion = models.CharField(max_length=500)
-    imagenservicio = models.ImageField(
-        upload_to="servicios/",
-        blank=True,
-        null=True,
-    )
+    imagenservicio = models.ImageField(upload_to="servicios/", blank=True, null=True)
 
     def __str__(self):
         return self.nombre
 
 
+class Especialidad(models.Model):
+    idEspecialidad = models.AutoField(primary_key=True)
+    nomEspecialidad = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.nomEspecialidad
+
+
+class Docente(models.Model):
+    iddocente = models.AutoField(primary_key=True)
+    idEspecialidad = models.ForeignKey(Especialidad, on_delete=models.CASCADE, related_name="docentes")
+    priNombre = models.CharField(max_length=50)
+    segNombre = models.CharField(max_length=50, blank=True, null=True)
+    terNombre = models.CharField(max_length=50, blank=True, null=True)
+    apePaterno = models.CharField(max_length=50)
+    apeMaterno = models.CharField(max_length=50)
+    dni = models.CharField(max_length=20, unique=True)
+    direccion = models.CharField(max_length=50, blank=True, null=True)
+    telefono = models.CharField(max_length=50, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.priNombre} {self.apePaterno}"
+
+
 class Curso(models.Model):
-    servicio = models.ForeignKey(
-        Servicio,
+    servicio = models.ForeignKey(Servicio, on_delete=models.PROTECT, related_name="cursos")
+    docente = models.ForeignKey(
+        Docente,
         on_delete=models.PROTECT,
-        related_name="cursos"
+        related_name="cursos",
+        null=False,   # ✅ Obligatorio
+        blank=False,  # ✅ Obligatorio
+        default=1     # ✅ Se asigna un docente por defecto (ID=1) para migrar sin errores
     )
     nombre_curso = models.CharField(max_length=200)
-    costo = models.DecimalField(
-        max_digits=9,
-        decimal_places=4,
-        validators=[MinValueValidator(0)]
-    )
-    descripcion = models.CharField(max_length=500)
+    costo = models.DecimalField(max_digits=9, decimal_places=4, validators=[MinValueValidator(0)])
+    descripcion = RichTextField()
 
     def __str__(self):
         return self.nombre_curso
 
 
 class Blog(models.Model):
-    usuario = models.ForeignKey(
-        Usuario,
-        on_delete=models.CASCADE,
-        related_name="blogs"
-    )
-    servicio = models.ForeignKey(
-        Servicio,
-        on_delete=models.PROTECT,
-        related_name="blogs"
-    )
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="blogs")
+    servicio = models.ForeignKey(Servicio, on_delete=models.PROTECT, related_name="blogs")
     titulo = models.CharField(max_length=500)
-    textoblog = models.TextField()
-    imagenblog = models.ImageField(
-        upload_to="blogs/",
-        blank=True,
-        null=True
-    )
+    textoblog = RichTextField()
+    imagenblog = models.ImageField(upload_to="blogs/", blank=True, null=True)
     fecha_publicacion = models.DateField()
 
     def __str__(self):
@@ -131,24 +138,24 @@ class Matricula(models.Model):
         ("finalizada", "Finalizada"),
     ]
 
-    curso = models.ForeignKey(
-        Curso,
-        on_delete=models.CASCADE,
-        related_name="matriculas"
-    )
-    usuario = models.ForeignKey(
-        Usuario,
-        on_delete=models.CASCADE,
-        related_name="matriculas"
-    )
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name="matriculas")
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="matriculas")
     fecha_matricula = models.DateField()
     estado_matricula = models.CharField(max_length=30, choices=ESTADOS_MATRICULA, default="pendiente")
-    nota_final = models.DecimalField(
-        max_digits=9,
-        decimal_places=2,
-        null=True,
-        blank=True
-    )
+    nota_final = models.DecimalField(max_digits=9, decimal_places=2, null=True, blank=True)
 
     def __str__(self):
         return f"{self.usuario} - {self.curso}"
+
+
+class Nota(models.Model):
+    idnota = models.AutoField(primary_key=True)
+    idmatricula = models.ForeignKey(Matricula, on_delete=models.CASCADE, related_name="notas")
+    valor_nota = models.DecimalField(max_digits=9, decimal_places=1)
+    fec_crea = models.DateField()
+
+    def __str__(self):
+        return f"{self.idmatricula.usuario.nombres} - {self.idmatricula.curso.nombre_curso}: {self.valor_nota}"
+
+
+

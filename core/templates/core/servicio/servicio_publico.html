@@ -49,6 +49,30 @@
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
   }
+
+  /* Botón resaltante para cursos */
+  .btn-cursos {
+    background-color: #28a745;
+    color: #fff;
+    font-weight: bold;
+    margin-left: 5px;
+  }
+  .btn-cursos:hover {
+    background-color: #218838;
+    color: #fff;
+  }
+
+  /* Botón resaltante para blogs */
+  .btn-blogs {
+    background-color: #007bff;
+    color: #fff;
+    font-weight: bold;
+    margin-right: 5px;
+  }
+  .btn-blogs:hover {
+    background-color: #0056b3;
+    color: #fff;
+  }
 </style>
 
 <div class="container mt-5">
@@ -64,12 +88,17 @@
         {% else %}
           <img src="{% static 'img/no-image.png' %}" class="card-img-top" alt="Sin imagen">
         {% endif %}
-        <div class="card-body">
+        <div class="card-body text-center">
           <h6 class="card-title">{{ servicio.nombre }}</h6>
           <p class="card-text small">{{ servicio.descripcion|truncatewords:15 }}</p>
-          <a href="{% url 'blogs_por_servicio' servicio.id %}" class="btn btn-outline-primary btn-sm">
-            Ver Blogs
-          </a>
+          <div class="d-flex justify-content-center">
+            <a href="{% url 'blogs_por_servicio' servicio.id %}" class="btn btn-blogs btn-sm">
+              📖 Ver Blogs
+            </a>
+            <a href="{% url 'cursos_por_servicio' servicio.id %}" class="btn btn-cursos btn-sm">
+              🎓 Ver Cursos
+            </a>
+          </div>
         </div>
       </div>
     </div>

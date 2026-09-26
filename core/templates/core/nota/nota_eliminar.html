@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Eliminar Nota{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-danger text-white">
+        <h4>
+            <i class="bi bi-trash"></i>
+            Confirmar Eliminación
+        </h4>
+    </div>
+    <div class="card-body">
+        <p class="mb-3">
+            ¿Estás seguro de que deseas eliminar la nota de 
+            <strong>{{ nota.idmatricula.usuario.nombres }} {{ nota.idmatricula.usuario.apellidos }}</strong> 
+            en el curso <strong>{{ nota.idmatricula.curso.nombre_curso }}</strong> 
+            con valor <strong>{{ nota.valor_nota }}</strong>?
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">
+                <i class="bi bi-trash"></i> Sí, eliminar
+            </button>
+            <a href="{% url 'nota_list' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Cancelar
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

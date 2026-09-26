@@ -1,15 +1,26 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Detalle del Blog{% endblock %}
+{% block title %}Detalle del Blog Público{% endblock %}
 
 {% block content %}
 <style>
+  .btn-principal {
+    background-color: #28a745;
+    color: #fff;
+    font-weight: bold;
+    margin-top: 20px;
+  }
+  .btn-principal:hover {
+    background-color: #218838;
+    color: #fff;
+  }
   .blog-image {
     display: block;
     margin: 0 auto;
-    width: 25%;       /* ✅ ajusta el ancho según lo que prefieras (ej. 25%, 50%, 70%) */
-    height: auto;     /* ✅ mantiene proporción */
+    width: 25%;       /* ✅ ocupa todo el ancho disponible */
+    height: auto;      /* ✅ mantiene proporción */
+    max-height: 500px; /* ✅ límite de altura para que no sea excesiva */
     border-radius: 8px;
   }
 </style>
@@ -38,24 +49,14 @@
           {{ blog.textoblog|safe }}
         </div>
       </div>
-
-      <!-- Botones de acción (solo en parte privada) -->
-      {% if request.user.is_authenticated %}
-      <div class="d-flex justify-content-center mt-4">
-        <a href="{% url 'blog_update' blog.id %}" class="btn btn-warning me-2">
-          <i class="bi bi-pencil-square"></i> Editar
-        </a>
-        <a href="{% url 'blog_delete' blog.id %}" class="btn btn-danger">
-          <i class="bi bi-trash"></i> Eliminar
-        </a>
-      </div>
-      {% endif %}
     </div>
   </div>
 
   <!-- Botón volver -->
   <div class="text-center mt-4">
-    <a href="{% url 'blog_lista' %}" class="btn btn-secondary">← Volver a la lista</a>
+    <a href="{% url 'blogs_por_servicio' servicio.id %}" class="btn btn-principal">
+      ← Volver a lista de blogs
+    </a>
   </div>
 </div>
 {% endblock %}

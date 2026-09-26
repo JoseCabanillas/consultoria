@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Nota{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h4>
+            <i class="bi bi-journal-check"></i>
+            {% if object %} Editar Nota {% else %} Nueva Nota {% endif %}
+        </h4>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <!-- Selección de Alumno y Curso (Matricula) -->
+            <div class="mb-3">
+                {{ form.idmatricula.label_tag }}
+                {{ form.idmatricula }}
+                {{ form.idmatricula.errors }}
+            </div>
+
+            <!-- Valor de la Nota -->
+            <div class="mb-3">
+                {{ form.valor_nota.label_tag }}
+                {{ form.valor_nota }}
+                {{ form.valor_nota.errors }}
+            </div>
+
+            <!-- Fecha de Creación -->
+            <div class="mb-3">
+                {{ form.fec_crea.label_tag }}
+                {{ form.fec_crea }}
+                {{ form.fec_crea.errors }}
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Guardar
+            </button>
+            <a href="{% url 'nota_list' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Regresar
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

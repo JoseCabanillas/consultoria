@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Rol, Usuario, Servicio, Curso, Blog, Matricula
+from .models import Rol, Usuario, Servicio, Curso, Blog, Matricula, Especialidad, Docente, Nota
 
 
 @admin.register(Rol)
@@ -11,11 +11,8 @@ class RolAdmin(admin.ModelAdmin):
 
 @admin.register(Usuario)
 class UsuarioAdmin(admin.ModelAdmin):
-    list_display = ("id", "usuario", "nombres", "apellidos", "correo", "rol", "estado",
-                    # "primer_login"
-                    )
-    list_filter = ("estado", "rol", #"primer_login"
-                   )
+    list_display = ("id", "usuario", "nombres", "apellidos", "correo", "rol", "estado")
+    list_filter = ("estado", "rol")
     search_fields = ("usuario", "nombres", "apellidos", "correo", "telefono")
     ordering = ("apellidos", "nombres")
 
@@ -27,11 +24,26 @@ class ServicioAdmin(admin.ModelAdmin):
     ordering = ("nombre",)
 
 
+@admin.register(Especialidad)
+class EspecialidadAdmin(admin.ModelAdmin):
+    list_display = ("idEspecialidad", "nomEspecialidad")
+    search_fields = ("nomEspecialidad",)
+    ordering = ("nomEspecialidad",)
+
+
+@admin.register(Docente)
+class DocenteAdmin(admin.ModelAdmin):
+    list_display = ("iddocente", "priNombre", "apePaterno", "apeMaterno", "dni", "idEspecialidad")
+    list_filter = ("idEspecialidad",)
+    search_fields = ("priNombre", "segNombre", "terNombre", "apePaterno", "apeMaterno", "dni")
+    ordering = ("apePaterno", "priNombre")
+
+
 @admin.register(Curso)
 class CursoAdmin(admin.ModelAdmin):
-    list_display = ("id", "nombre_curso", "servicio", "costo")
-    list_filter = ("servicio",)
-    search_fields = ("nombre_curso", "descripcion")
+    list_display = ("id", "nombre_curso", "servicio", "docente", "costo")
+    list_filter = ("servicio", "docente")
+    search_fields = ("nombre_curso", "descripcion", "docente__priNombre", "docente__apePaterno")
     ordering = ("nombre_curso",)
 
 
@@ -49,3 +61,16 @@ class MatriculaAdmin(admin.ModelAdmin):
     list_filter = ("estado_matricula", "fecha_matricula")
     search_fields = ("usuario__nombres", "usuario__apellidos", "curso__nombre_curso")
     date_hierarchy = "fecha_matricula"
+
+
+@admin.register(Nota)
+class NotaAdmin(admin.ModelAdmin):
+    list_display = ("idnota", "idmatricula", "valor_nota", "fec_crea")
+    list_filter = ("fec_crea",)
+    search_fields = (
+        "idmatricula__usuario__nombres",
+        "idmatricula__usuario__apellidos",
+        "idmatricula__curso__nombre_curso",
+        "valor_nota",
+    )
+    date_hierarchy = "fec_crea"

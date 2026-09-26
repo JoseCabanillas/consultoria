@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Especialidad{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h4>
+            <i class="bi bi-award"></i>
+            {% if object %} Editar Especialidad {% else %} Nueva Especialidad {% endif %}
+        </h4>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="mb-3">
+                {{ form.nomEspecialidad.label_tag }}
+                {{ form.nomEspecialidad }}
+                {{ form.nomEspecialidad.errors }}
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Guardar
+            </button>
+            <a href="{% url 'especialidad_lista' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Regresar
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

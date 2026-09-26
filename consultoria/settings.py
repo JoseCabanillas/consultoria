@@ -30,6 +30,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # ✅ Whitenoise para estáticos
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -58,24 +59,26 @@ TEMPLATES = [
 WSGI_APPLICATION = 'consultoria.wsgi.application'
 
 # Database
-# Local config (para desarrollo en tu PC)
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'bdpagina',
-        'USER': 'postgres',
-        'PASSWORD': 'Jlcb@1977',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+# ✅ Usa PostgreSQL local si no existe DATABASE_URL
+if os.environ.get("DATABASE_URL"):
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ["DATABASE_URL"],
+            conn_max_age=600,
+            ssl_require=True
+        )
     }
-}
-
-# Override con Render (si existe DATABASE_URL en variables de entorno)
-DATABASES['default'] = dj_database_url.config(
-    default=os.environ.get("DATABASE_URL"),
-    conn_max_age=600,
-    ssl_require=False
-)
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'bdpagina',
+            'USER': 'postgres',
+            'PASSWORD': 'Jlcb@1977',
+            'HOST': '127.0.0.1',
+            'PORT': '5432',
+        }
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -99,8 +102,8 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# Whitenoise para servir estáticos en producción
-MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
+# ✅ Whitenoise: almacenamiento comprimido para producción
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Redirección después de cerrar sesión
 LOGIN_URL = 'login'
